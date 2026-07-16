@@ -4,6 +4,8 @@ import React from 'react'
 import BannerSection from '@/components/Section/BannerSection'
 import { api, ENDPOINT } from '@/lib/endpoint'
 
+export const dynamic = "force-dynamic";
+
 async function getBannerData() {
   const response = await api.get(ENDPOINT.fetchActionTvShows);
   return response.data?.media?.results || [];
