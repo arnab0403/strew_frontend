@@ -5,7 +5,7 @@ import { FolderLockIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import Skeleton from "../../../atom/Skeleton";
+import Skeleton from "@/components/atom/Skeleton";
 import Image from "next/image";
 import { RootState } from "@/redux/store";
 

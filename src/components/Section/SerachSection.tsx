@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import Skeleton from "../../../atom/Skeleton"
+import Skeleton from "@/components/atom/Skeleton"
 import { useEffect, useState, ChangeEvent } from "react"
 import { api, ENDPOINT } from "@/lib/endpoint"
 import SearchThumbnail from "../atom/SearchThumbnail"

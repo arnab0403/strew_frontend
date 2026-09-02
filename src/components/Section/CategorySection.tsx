@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import Skeleton from '../../../atom/Skeleton'
+import Skeleton from '@/components/atom/Skeleton'
 import { getUrlDetails, media } from '@/lib/endpoint'
 import Image from 'next/image';
 import Link from 'next/link';
