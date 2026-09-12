@@ -6,7 +6,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import Image from "next/image"
+import { Search } from "lucide-react"
 import Skeleton from "@/components/atom/Skeleton"
 import { useEffect, useState, ChangeEvent } from "react"
 import { api, ENDPOINT } from "@/lib/endpoint"
@@ -50,13 +50,13 @@ export function SearchSection() {
     <Dialog open={open} onOpenChange={setOpen}>
       <div>
         <DialogTrigger asChild>
-           <div className="rounded-3xl border border-[#383838] lg:flex justify-center items-center px-4 gap-2 hidden cursor-pointer">
-                <Image src="/search.svg" alt="search icon" height={20} width={20} />
+           <div className="hidden cursor-pointer items-center gap-3 rounded-full border border-hairline bg-surface-inset px-4 py-2 transition-colors hover:border-content-subtle lg:flex">
+                <Search className="size-[18px] shrink-0 text-content-muted" />
                 <input
                   type="text"
                   placeholder="Search..."
                   readOnly
-                  className=" py-2 bg-transparent text-white font-medium focus:outline-none text-sm max-w-[150px] cursor-pointer"
+                  className="w-[170px] cursor-pointer bg-transparent text-sm text-content placeholder:text-content-subtle focus:outline-none"
                 />
             </div>
         </DialogTrigger>

@@ -1,9 +1,9 @@
 "use client"
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation';
 import React from 'react'
+import { Bell, Clapperboard, Star } from 'lucide-react';
 import ProfileSheet from './ProfileSheet';
 import { useSelector } from 'react-redux';
 import { SearchSection } from './SerachSection';
@@ -12,9 +12,9 @@ import { RootState } from '@/redux/store';
 export const navLinks = [
   { name: "Home", key: "", href: "/" },
   { name: "Movies", key: "movies", href: "/movies" },
-  { name: "Tv Shows", key: "tv", href: "/tv" },
+  { name: "TV Shows", key: "tv", href: "/tv" },
   { name: "Watchlist", key: "watchlist", href: "/watchlist" },
-  { name: "Jio+", key: "jio+", href: "/jio+" },
+  { name: "Library", key: "jio+", href: "/jio+" },
 ];
 
 function Headers() {
@@ -22,43 +22,55 @@ function Headers() {
     const activeTabKey = path.split("/")[1];
 
     const user = useSelector((state: RootState) => state.user);
-    console.log(user)
+
+    const premiumPill = "flex items-center gap-2 rounded-full bg-brand px-5 py-1.5 text-[14px] font-semibold text-brand-foreground transition-colors";
+
   return (
-    <header className='w-[100vw] py-4 fixed top-0 z-50 border-b-2 border-b-[#353535] bg-[#080e10] '>
-        <div className='mx-auto px-4 flex items-center text-nowrap'>
-            <div className='flex items-center'>
-                <Link href="/">
-                    <Image src="/logo.svg" width={400} height={136} className='md:max-w-35 md:max-h-15 max-w-28 max-h-10' alt='Image'/>
-                </Link>
-                {
-                user.user?.isPremium ? 
-                <div className='border text-[#c1a362] font-medium border-[#c1a362] px-6 py-1 flex items-center justify-center gap-2 rounded-[23px] ml-4 mr-4'>
-                    <Image src="/crown.svg"  width={16} height={16} alt='image'/>
-                    <span className='text-[16px]'>Premium</span> 
+    <header className='fixed top-0 z-50 h-[68px] w-full border-b border-hairline bg-surface-nav'>
+        <div className='mx-auto flex h-full items-center gap-5 px-5 text-nowrap md:px-6'>
+            <Link href="/" className='flex items-center gap-2 shrink-0'>
+                <Clapperboard className='size-6 text-brand' fill='currentColor' strokeWidth={1.5} />
+                <span className='text-[20px] font-bold tracking-tight text-content'>Strew</span>
+            </Link>
+
+            {user.user?.isPremium ? (
+                <div className={premiumPill}>
+                    <Star className='size-4' fill='currentColor' strokeWidth={0} />
+                    <span>Premium</span>
                 </div>
-                :
-                <Link href="/subscription" className='border text-[#c1a362] font-medium border-[#c1a362] md:px-6 py-1 px-4  flex items-center justify-center gap-2 rounded-[23px] md:ml-4 md:mr-4 ml-3 mr-3'>
-                    <Image src="/crown.svg"  width={16} height={16} alt='image'/>
-                    <span className='md:text-[16px] text-[13px]'>Go Premium</span> 
+            ) : (
+                <Link href="/subscription" className={`${premiumPill} hover:bg-brand-hover`}>
+                    <Star className='size-4' fill='currentColor' strokeWidth={0} />
+                    <span>Go Premium</span>
                 </Link>
-                }
-            </div>
-            <nav className="lg:flex gap-4 hidden">
-                {navLinks.map(item=>(
-                    <Link href={item.href} key={item.key} className={`px-1 py-2 text-[16px] font-medium text-[#b6b8b8] hover:text-white gap ${activeTabKey === item.key
-                ? "border-b-2 border-pink-500 text-white"
-                : ""
-                }`} >
+            )}
+
+            <nav className="hidden items-center gap-7 lg:flex">
+                {navLinks.map(item => (
+                    <Link
+                      href={item.href}
+                      key={item.key}
+                      className={`py-1 text-[15px] font-medium transition-colors ${activeTabKey === item.key
+                        ? "border-b-2 border-brand text-brand"
+                        : "text-content-muted hover:text-content"
+                      }`}
+                    >
                         {item.name}
                     </Link>
                 ))}
             </nav>
-            
-            <div className="flex items-center justify-end  w-full pr-4">
+
+            <div className="ml-auto flex items-center gap-3">
                 <SearchSection/>
+                <button
+                  type="button"
+                  aria-label="Notifications"
+                  className="grid size-9 place-items-center rounded-full text-content-muted transition-colors hover:text-content"
+                >
+                    <Bell className='size-5' />
+                </button>
                 <ProfileSheet/>
             </div>
-
         </div>
     </header>
   )

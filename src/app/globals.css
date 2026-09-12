@@ -6,6 +6,21 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* ---- Strew brand palette (see :root for the raw values) ---- */
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --color-surface: var(--surface);
+  --color-surface-nav: var(--surface-nav);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-inset: var(--surface-inset);
+  --color-hairline: var(--hairline);
+
+  --color-content: var(--content);
+  --color-content-muted: var(--content-muted);
+  --color-content-subtle: var(--content-subtle);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -47,7 +62,31 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #0c0a09;
+
+  /* ================= Strew brand palette =================
+     Single source of truth for app colours. Use the Tailwind
+     utilities generated from these (bg-surface-nav, text-brand,
+     border-hairline, ...) instead of arbitrary hex values. */
+
+  /* Accent - premium gold: active nav, logo mark, primary CTA */
+  --brand: #e8c15a;
+  --brand-hover: #f2cf74;
+  --brand-foreground: #17120a;  /* text/icons sitting on top of --brand */
+
+  /* Surfaces, darkest -> lightest */
+  --surface-inset: #0a0a0c;     /* sunken fields: search pill, inputs */
+  --surface: #0c0a09;           /* app background */
+  --surface-nav: #131316;       /* header / nav bar */
+  --surface-raised: #1c1c20;    /* cards, sheets, menus */
+  --hairline: #2a2a30;          /* 1px dividers and borders */
+
+  /* Text */
+  --content: #f4f4f5;           /* primary */
+  --content-muted: #a1a1aa;     /* inactive nav links, secondary copy */
+  --content-subtle: #71717a;    /* placeholders, meta */
+
+  /* ================= shadcn/ui tokens ================= */
+  --background: var(--surface);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
