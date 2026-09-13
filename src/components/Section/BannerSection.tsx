@@ -37,7 +37,7 @@ async function BannerSectionContent({ fetcher }: BannerSectionProps) {
                 width={700}
                 height={500}
                 className="rounded-2xl object-cover min-w-full min-h-full bg-slate-600 "
-                quality={25}
+                quality={75}
               />
               <div className="absolute bottom-0 left-0 w-full h-[30%] 
                               justify-center items-end pb-4

@@ -83,7 +83,7 @@ function Page() {
             key: "rzp_test_RHB51cyj58hxCX",
             "amount": order.amount, 
             "currency": order.currency,
-            "name": "Jio Clone",
+            "name": "Strew",
             "description": "Premium",
             "order_id": order.id, 
             "prefill": {
@@ -119,7 +119,7 @@ function Page() {
 
       <div className="lg:pt-20 px-10 pt-10">
                     <h1 className="md:text-4xl text-2xl  leading-none font-black md:text-12 mb-4 text-nowrap">
-                        JioCinema Premium
+                        Strew Premium
                     </h1>
                     <p className="text-lg mb-8 w-[50%] text-wrap hidden md:block">
                         Entertainment Redefined - The best of Hollywood, Before TV
