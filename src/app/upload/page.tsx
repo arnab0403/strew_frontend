@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ChangeEvent, DragEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { Clapperboard, ImagePlus, X } from "lucide-react";
+import { Clapperboard, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 import { ENDPOINT, uploadApi } from "@/lib/endpoint";
@@ -20,6 +20,15 @@ interface UploadVideoResponse {
   message: string;
   status: string;
   upload: UploadedVideo;
+}
+
+interface StrewPayload {
+  tittle: string;
+  description: string;
+  genre: string;
+  tags: string[];
+  thumbnail: string[];
+  s3_video_source: string;
 }
 
 const STATUS_TEXT: Record<UploadStatus, string> = {
@@ -44,8 +53,13 @@ const lightInputClass = "w-full rounded-md bg-content px-3 py-2.5 text-sm text-s
 function UploadPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [genre, setGenre] = useState("Action");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+
+  const [videoKey, setVideoKey] = useState<string>("");
+  const [bucket, setBucket] = useState<string>("video-streaming-arnab");
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const [trailer, setTrailer] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
@@ -56,6 +70,7 @@ function UploadPage() {
 
   const [thumbnails, setThumbnails] = useState<(string | null)[]>(Array(THUMBNAIL_SLOTS).fill(null));
   const [activeThumbnail, setActiveThumbnail] = useState(0);
+  const [uploadingSlot, setUploadingSlot] = useState<number | null>(null);
   const thumbnailInput = useRef<HTMLInputElement>(null);
   const pendingSlot = useRef(0);
   const thumbnailUrls = useRef(thumbnails);
@@ -63,9 +78,34 @@ function UploadPage() {
 
   // Free object URLs and stop any in-flight upload when leaving the page
   useEffect(() => () => {
-    thumbnailUrls.current.forEach((url) => url && URL.revokeObjectURL(url));
+    thumbnailUrls.current.forEach((url) => url && url.startsWith("blob:") && URL.revokeObjectURL(url));
     uploadController.current?.abort();
   }, []);
+
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "strew";
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "strew_uploads";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        formData
+      );
+      if (response.data.secure_url) {
+        return response.data.secure_url;
+      } else if (response.data.url) {
+        return response.data.url;
+      }
+      throw new Error("No URL returned from Cloudinary");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error?.message || err.message || "Cloudinary upload failed";
+      throw new Error(errorMessage);
+    }
+  };
 
   const startUpload = async (file: File) => {
     uploadController.current?.abort();
@@ -93,6 +133,12 @@ function UploadPage() {
       setProgress(100);
       setUploadStatus("success");
       setUploadedVideo(response.data.upload);
+      if (response.data.upload?.key) {
+        setVideoKey(response.data.upload.key);
+      }
+      if (response.data.upload?.bucket) {
+        setBucket(response.data.upload.bucket);
+      }
       toast.success(response.data.message || "Video uploaded successfully");
     } catch (error: any) {
       if (axios.isCancel(error)) return;
@@ -110,6 +156,8 @@ function UploadPage() {
     setProgress(0);
     setUploadStatus("idle");
     setUploadedVideo(null);
+    setVideoKey("");
+    setBucket("video-streaming-arnab");
   };
 
   const selectTrailer = (file?: File) => {
@@ -139,41 +187,107 @@ function UploadPage() {
   };
 
   const openThumbnailPicker = (slot: number) => {
+    if (uploadingSlot !== null) return;
     pendingSlot.current = slot;
     thumbnailInput.current?.click();
   };
 
-  const handleThumbnail = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnail = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.warning("Please select an image file");
+      return;
+    }
+
     const slot = pendingSlot.current;
-    setThumbnails((prev) => {
-      const next = [...prev];
-      if (next[slot]) URL.revokeObjectURL(next[slot]);
-      next[slot] = URL.createObjectURL(file);
-      return next;
-    });
-    setActiveThumbnail(slot);
+    setUploadingSlot(slot);
+
+    try {
+      const cloudinaryUrl = await uploadToCloudinary(file);
+      setThumbnails((prev) => {
+        const next = [...prev];
+        if (next[slot] && next[slot]?.startsWith("blob:")) URL.revokeObjectURL(next[slot]!);
+        next[slot] = cloudinaryUrl;
+        return next;
+      });
+      setActiveThumbnail(slot);
+      toast.success("Thumbnail uploaded to Cloudinary!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to upload thumbnail to Cloudinary");
+    } finally {
+      setUploadingSlot(null);
+    }
   };
 
   const resetForm = () => {
-    thumbnails.forEach((url) => url && URL.revokeObjectURL(url));
+    thumbnails.forEach((url) => url && url.startsWith("blob:") && URL.revokeObjectURL(url));
     setTitle("");
     setDescription("");
+    setGenre("Action");
     setTags([]);
     setTagInput("");
     cancelUpload();
     setThumbnails(Array(THUMBNAIL_SLOTS).fill(null));
     setActiveThumbnail(0);
+    setVideoKey("");
+    setBucket("video-streaming-arnab");
   };
 
-  const handlePublish = () => {
-    if (!trailer) return toast.warning("Please upload a trailer");
-    if (!title.trim()) return toast.warning("Title is required");
-    if (uploadStatus === "uploading") return toast.warning("Please wait for the upload to finish");
-    if (uploadStatus !== "success") return toast.warning("Trailer upload failed, please retry");
-    toast.success("Your movie is ready to publish", { description: uploadedVideo?.key });
+  const handlePublish = async () => {
+    if (uploadStatus === "uploading") {
+      return toast.warning("Please wait for video upload to finish");
+    }
+
+    if (!videoKey || uploadStatus !== "success") {
+      return toast.error("Video key is missing. Please upload a video first.");
+    }
+
+    if (!title.trim()) {
+      return toast.error("Title is required.");
+    }
+
+    if (!description.trim()) {
+      return toast.error("Description is required.");
+    }
+
+    if (!genre.trim()) {
+      return toast.error("Genre is required.");
+    }
+
+    if (tags.length === 0) {
+      return toast.error("At least one tag is required.");
+    }
+
+    const validThumbnails = thumbnails.filter((url): url is string => Boolean(url && url.trim().length > 0));
+    if (validThumbnails.length === 0) {
+      return toast.error("At least one thumbnail is required.");
+    }
+
+    const effectiveBucket = bucket || uploadedVideo?.bucket || "video-streaming-arnab";
+    const s3VideoSource = `s3://${effectiveBucket}/${videoKey}`;
+
+    const payload: StrewPayload = {
+      tittle: title.trim(),
+      description: description.trim(),
+      genre: genre.trim(),
+      tags: tags,
+      thumbnail: validThumbnails,
+      s3_video_source: s3VideoSource,
+    };
+
+    try {
+      setIsPublishing(true);
+      const response = await uploadApi.post(ENDPOINT.uploadStrew, payload);
+      toast.success(response.data?.message || "Strew published successfully!");
+      resetForm();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Failed to publish strew");
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const roundedProgress = Math.round(progress);
@@ -268,7 +382,34 @@ function UploadPage() {
               </div>
 
               <div>
-                <label htmlFor="tags" className={labelClass}>Genre Tags</label>
+                <label htmlFor="genre" className={labelClass}>Genre</label>
+                <div className="mb-2 flex flex-wrap gap-1.5">
+                  {["Action", "Comedy", "Drama", "Horror", "Romance", "Sci-Fi", "Thriller", "Anime"].map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setGenre(g)}
+                      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer ${
+                        genre.toLowerCase() === g.toLowerCase()
+                          ? "bg-brand text-brand-foreground font-semibold"
+                          : "border border-hairline bg-surface-inset text-content-muted hover:border-brand/40"
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  id="genre"
+                  value={genre}
+                  onChange={(e) => setGenre(e.target.value)}
+                  placeholder="Genre (e.g. Action)"
+                  className={lightInputClass}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="tags" className={labelClass}>Tags</label>
                 {tags.length > 0 && (
                   <div className="mb-2 flex flex-wrap gap-2">
                     {tags.map((tag) => (
@@ -331,9 +472,15 @@ function UploadPage() {
               <button
                 type="button"
                 onClick={() => openThumbnailPicker(activeThumbnail)}
-                className="relative grid aspect-video w-full cursor-pointer place-items-center overflow-hidden rounded-md bg-surface-inset text-content-subtle transition-colors hover:text-content-muted"
+                disabled={uploadingSlot !== null}
+                className="relative grid aspect-video w-full cursor-pointer place-items-center overflow-hidden rounded-md bg-surface-inset text-content-subtle transition-colors hover:text-content-muted disabled:cursor-not-allowed"
               >
-                {activePreview ? (
+                {uploadingSlot === activeThumbnail ? (
+                  <span className="flex flex-col items-center gap-2 text-xs text-brand">
+                    <Loader2 className="size-6 animate-spin" />
+                    Uploading thumbnail to Cloudinary...
+                  </span>
+                ) : activePreview ? (
                   <Image src={activePreview} alt="Selected thumbnail" fill unoptimized className="object-cover" />
                 ) : (
                   <span className="flex flex-col items-center gap-1 text-xs">
@@ -348,11 +495,14 @@ function UploadPage() {
                   <button
                     key={slot}
                     type="button"
+                    disabled={uploadingSlot !== null}
                     aria-label={url ? `Use thumbnail ${slot + 1}` : `Add thumbnail ${slot + 1}`}
                     onClick={() => (url ? setActiveThumbnail(slot) : openThumbnailPicker(slot))}
-                    className={`relative grid aspect-video cursor-pointer place-items-center overflow-hidden rounded-md border bg-surface-inset text-content-subtle transition-colors ${activeThumbnail === slot ? "border-brand" : "border-transparent hover:border-hairline"}`}
+                    className={`relative grid aspect-video cursor-pointer place-items-center overflow-hidden rounded-md border bg-surface-inset text-content-subtle transition-colors disabled:cursor-not-allowed ${activeThumbnail === slot ? "border-brand" : "border-transparent hover:border-hairline"}`}
                   >
-                    {url ? (
+                    {uploadingSlot === slot ? (
+                      <Loader2 className="size-4 animate-spin text-brand" />
+                    ) : url ? (
                       <Image src={url} alt="" fill unoptimized className="object-cover" />
                     ) : (
                       <ImagePlus className="size-4" />
@@ -374,9 +524,10 @@ function UploadPage() {
               <button
                 type="button"
                 onClick={handlePublish}
-                className="flex-1 cursor-pointer rounded-lg bg-linear-to-b from-brand-hover to-brand py-3 text-sm font-semibold text-brand-foreground shadow-[0_8px_24px_-8px] shadow-brand/60 transition-[filter] hover:brightness-110"
+                disabled={isPublishing}
+                className="flex-1 cursor-pointer rounded-lg bg-linear-to-b from-brand-hover to-brand py-3 text-sm font-semibold text-brand-foreground shadow-[0_8px_24px_-8px] shadow-brand/60 transition-[filter] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Publish
+                {isPublishing ? "Publishing..." : "Publish"}
               </button>
             </div>
           </div>

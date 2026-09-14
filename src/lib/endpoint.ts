@@ -54,6 +54,7 @@ export const ENDPOINT = {
 
     // upload (served by uploadApi)
     uploadVideo: "/api/upload/video",
+    uploadStrew: "/api/upload/strew",
 }
 
 export const media = (path: string | null | undefined, exception?: string): string => `https://image.tmdb.org/t/p/original` + (path || exception || "");
