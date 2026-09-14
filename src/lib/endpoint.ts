@@ -50,7 +50,10 @@ export const ENDPOINT = {
     fetchVideoThumbnail: (name: string) => `/premium/video/thumbnail?name=${name}`,
 
     //search movies
-    searchAllMovies: (name: string) => `/movies/search/?movieName=${name}`
+    searchAllMovies: (name: string) => `/movies/search/?movieName=${name}`,
+
+    // upload (served by uploadApi)
+    uploadVideo: "/api/upload/video",
 }
 
 export const media = (path: string | null | undefined, exception?: string): string => `https://image.tmdb.org/t/p/original` + (path || exception || "");
@@ -61,6 +64,13 @@ export const api = axios.create({
     baseURL: API_BASE_URL,
     // credentials
     withCredentials: true,
+});
+
+// Video upload service runs separately from the main backend
+export const UPLOAD_API_BASE_URL = process.env.NEXT_PUBLIC_UPLOAD_API_BASE_URL || "http://localhost:8080";
+
+export const uploadApi = axios.create({
+    baseURL: UPLOAD_API_BASE_URL,
 });
 
 

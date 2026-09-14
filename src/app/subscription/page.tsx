@@ -114,7 +114,7 @@ function Page() {
         rzpl.open();
     }
   return (
-    <div className='h-[100vh] w-full mt-[70px] text-white'>
+    <div className='h-[100vh] w-full mt-[70px] lg:mt-0 text-white'>
       <Image src={"/bg.jpg"} height={720} width={1280} quality={30} className=' object-cover h-full w-full absolute -z-50' alt='Image'/>
 
       <div className="lg:pt-20 px-10 pt-10">
@@ -142,7 +142,7 @@ function Page() {
                         ))}
                     </div>
                     <button
-                        className="bg-pink-600 p-3 md:mt-10 item-start flex font-medium rounded-lg ml-2"
+                        className="bg-brand text-brand-foreground hover:bg-brand-hover transition-colors cursor-pointer p-3 md:mt-10 item-start flex font-medium rounded-lg ml-2"
                         onClick={handlePaymentButton}
                     >
                         Continue & Pay

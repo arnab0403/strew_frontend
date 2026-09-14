@@ -11,6 +11,7 @@ import Skeleton from "@/components/atom/Skeleton"
 import { useEffect, useState, ChangeEvent } from "react"
 import { api, ENDPOINT } from "@/lib/endpoint"
 import SearchThumbnail from "../atom/SearchThumbnail"
+import { NavLabel, navIconClass, navIconIdle } from "../atom/NavItem"
 
 export function SearchSection() {
   const [open, setOpen] = useState(false);
@@ -48,17 +49,12 @@ export function SearchSection() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <div>
+      <div className="lg:w-full">
         <DialogTrigger asChild>
-           <div className="hidden cursor-pointer items-center gap-3 rounded-full border border-hairline bg-surface-inset px-4 py-2 transition-colors hover:border-content-subtle lg:flex">
-                <Search className="size-[18px] shrink-0 text-content-muted" />
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  readOnly
-                  className="w-[170px] cursor-pointer bg-transparent text-sm text-content placeholder:text-content-subtle focus:outline-none"
-                />
-            </div>
+           <button type="button" aria-label="Search" className={`${navIconClass} ${navIconIdle} cursor-pointer`}>
+                <Search className="size-5" strokeWidth={1.75} />
+                <NavLabel label="Search" />
+            </button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[855px] border-none text-white">
           <DialogHeader>

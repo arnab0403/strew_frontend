@@ -145,7 +145,7 @@ function Signup() {
             </div>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-            <Button type="submit" className="w-full bg-[#e11d48] hover:bg-[#cb143c] cursor-pointer" onClick={handleSubmit}>
+            <Button type="submit" className="w-full bg-brand text-brand-foreground hover:bg-brand-hover cursor-pointer" onClick={handleSubmit}>
                 {!loading ? "Sign Up" : <LoaderCircle className='animate-spin'/>}
             </Button>
         <div className='w-full flex flex-row justify-center text-sm pt-2'>

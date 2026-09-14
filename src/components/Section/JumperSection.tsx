@@ -12,7 +12,7 @@ interface JumperSectionProps {
 
 function JumperSection({ list }: JumperSectionProps) {
   return (
-    <div className='mt-[64px] flex gap-4 p-6 bg-[#0c0a09] text-white overflow-scroll scrollbar-hide'>
+    <div className='mt-[64px] lg:mt-0 flex gap-4 p-6 bg-[#0c0a09] text-white overflow-scroll scrollbar-hide'>
         {
             list.map((item) => (
                 <a href={`#${item.href}`} key={item.href} className='px-3 py-2  rounded-full bg-white/15 text-sm text-nowrap'>

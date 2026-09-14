@@ -17,7 +17,7 @@ function WatchPageContent() {
   const user = useSelector((state: RootState) => state.user);
 
   return (
-    <div className='h-[90vh] w-full mt-[80px]'>
+    <div className='h-[90vh] w-full mt-[80px] lg:mt-0'>
         {user?.user?.isPremium ? 
         <>
           <div className='h-[85%]'>
@@ -35,7 +35,7 @@ function WatchPageContent() {
         <div className='h-[85%] w-full flex justify-center items-center flex-col text-[#94a3b8]'>
           <FolderLock size={100} strokeWidth={1}/>
           <p>Subscribe to view premium content</p>
-          <Link href="/subscription" className='px-3 py-2 bg-[#e11d48] hover:bg-[#cd0b35] text-sm text-white rounded-md mt-2'>
+          <Link href="/subscription" className='px-3 py-2 bg-brand hover:bg-brand-hover text-sm text-brand-foreground rounded-md mt-2'>
                Subscribe
           </Link>
         </div>
@@ -46,7 +46,7 @@ function WatchPageContent() {
 
 function Page() {
   return (
-    <Suspense fallback={<div className="h-[90vh] w-full mt-[80px] flex justify-center items-center text-white">Loading...</div>}>
+    <Suspense fallback={<div className="h-[90vh] w-full mt-[80px] lg:mt-0 flex justify-center items-center text-white">Loading...</div>}>
       <WatchPageContent />
     </Suspense>
   )

@@ -17,7 +17,7 @@ function ShareButton() {
         })
     }
   return (
-    <Button className="bg-[#e11d48] hover:bg-[#cd0b35] cursor-pointer h-10" onClick={handleShare}> 
+    <Button className="bg-brand text-brand-foreground hover:bg-brand-hover cursor-pointer h-10" onClick={handleShare}> 
         <Share2/> Share
     </Button>
   )

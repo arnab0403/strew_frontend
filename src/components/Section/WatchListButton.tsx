@@ -33,7 +33,7 @@ function WatchListButton({ watchList }: WatchListButtonProps) {
         return null;
     }
   return (
-    <Button className={`text-white bg-[#e11d48] hover:bg-[#cd0b35] h-10 ${isLoading ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={addToWatchList}>
+    <Button className={`bg-brand text-brand-foreground hover:bg-brand-hover h-10 ${isLoading ? "cursor-not-allowed" : "cursor-pointer"}`} onClick={addToWatchList}>
         {isLoading ? <LoaderCircle className=' animate-spin'/> : <PlusIcon className='w-4 h-4'/>}
         WatchList
     </Button>

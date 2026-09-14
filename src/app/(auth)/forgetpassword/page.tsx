@@ -112,7 +112,7 @@ function Page() {
                 </div>
             </CardContent>
             <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full bg-[#e11d48] hover:bg-[#cb143c] cursor-pointer" onClick={handleForgetPassword}>
+                <Button type="submit" className="w-full bg-brand text-brand-foreground hover:bg-brand-hover cursor-pointer" onClick={handleForgetPassword}>
                     Send OTP
                 </Button>
             </CardFooter>
@@ -159,7 +159,7 @@ function Page() {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="submit" className="w-full bg-[#e11d48] hover:bg-[#cb143c] cursor-pointer" onClick={handleResetPassword}>Reset</Button>
+                    <Button type="submit" className="w-full bg-brand text-brand-foreground hover:bg-brand-hover cursor-pointer" onClick={handleResetPassword}>Reset</Button>
                 </DialogFooter>
                 </DialogContent>
             </div>

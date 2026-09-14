@@ -15,7 +15,7 @@ async function Page({ searchParams }: WatchPageProps) {
   const details = response.data?.media?.results?.[0];
 
   return (
-    <div className='h-[90vh] w-full mt-[80px]'>
+    <div className='h-[90vh] w-full mt-[80px] lg:mt-0'>
         {details ? 
         <>
           <div className='h-[85%]'>
@@ -36,7 +36,7 @@ async function Page({ searchParams }: WatchPageProps) {
         <div className='h-[85%] w-full flex justify-center items-center flex-col text-[#94a3b8]'>
           <FilmIcon size={100}/>
           <p>Uh Oh! Video is Unavailable</p>
-          <Link href="/movies" className='px-3 py-3 bg-[#e11d48] hover:bg-[#cd0b35] text-sm text-white rounded-md mt-2'>
+          <Link href="/movies" className='px-3 py-3 bg-brand hover:bg-brand-hover text-sm text-brand-foreground rounded-md mt-2'>
                 Take me Home
           </Link>
         </div>

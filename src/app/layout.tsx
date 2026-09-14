@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className={`${inter.className} antialiased`}
       >
         <NextTopLoader 
-          color="#e11d48"
+          color="#e8c15a"
           initialPosition={0.08}
           crawlSpeed={200}
           height={3}
@@ -36,8 +36,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Toaster position="bottom-center" style={{
               "background": "black",
             }}/>
-            {children}
-            <Footer/>
+            {/* leave room for the desktop sidebar */}
+            <div className="lg:pl-[76px]">
+              {children}
+              <Footer/>
+            </div>
           </InitalLoad>
         </StoreProvider>
       </body>

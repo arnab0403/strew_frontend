@@ -97,7 +97,7 @@ function ProfileSheet() {
             </p>
             {user.isLoggedIn ? (
             <Button
-                className="rounded-full cursor-pointer font-medium mt-4 text-base px-4 py-2 bg-pink-600 hover:bg-pink-700"
+                className="rounded-full cursor-pointer font-medium mt-4 text-base px-4 py-2 bg-brand text-brand-foreground hover:bg-brand-hover"
                 onClick={handleLogout}
             >
                 Logout
@@ -105,7 +105,7 @@ function ProfileSheet() {
             ) : (
             <Link
                 href={"/login"}
-                className="rounded-full cursor-pointer font-medium mt-4 text-base px-4 py-2 bg-pink-600 hover:bg-pink-700"
+                className="rounded-full cursor-pointer font-medium mt-4 text-base px-4 py-2 bg-brand text-brand-foreground hover:bg-brand-hover"
                 onClick={() => setOpen(false)}
             >
                 Login
