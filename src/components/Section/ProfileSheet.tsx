@@ -48,22 +48,22 @@ function ProfileSheet() {
       <SheetTrigger asChild className="cursor-pointer">
           {user.isLoggedIn ? 
           (
-          <div className="h-10 w-10 rounded-full overflow-hidden bg-[#009fe3] text-white flex justify-center items-center text-2xl">
+          <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden bg-[#009fe3] text-white flex justify-center items-center text-2xl">
             {
-            user.user?.avatar ? 
-            <Image height={40} width={40} alt="User Image" src={user.user.avatar}/> 
-              :  
+            user.user?.avatar ?
+            <Image height={40} width={40} alt="User Image" src={user.user.avatar}/>
+              :
             <p>
               {user.user?.name?.charAt(0) || "U"}
             </p>
             }
           </div>
-          ) 
-          : 
+          )
+          :
           (<Image
               src="/profile.avif"
               alt="Profile Icon"
-              className="min-h-10 min-w-10 rounded-full"
+              className="min-h-10 min-w-10 shrink-0 rounded-full"
               width={40}
               height={40}
           />)}

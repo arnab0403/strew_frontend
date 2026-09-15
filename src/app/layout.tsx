@@ -37,8 +37,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               "background": "black",
             }}/>
             {/* leave room for the desktop sidebar */}
-            <div className="lg:pl-[76px]">
-              {children}
+            <div className="flex min-h-screen flex-col lg:pl-[76px]">
+              <div className="flex-1">
+                {children}
+              </div>
               <Footer/>
             </div>
           </InitalLoad>

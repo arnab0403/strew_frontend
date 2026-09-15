@@ -10,6 +10,7 @@ import {
   Film,
   House,
   Library,
+  PlaySquare,
   Star,
   Tv,
   Upload,
@@ -32,6 +33,7 @@ export const navLinks = [
   { name: "TV Shows", key: "tv", href: "/tv", icon: Tv },
   { name: "Watchlist", key: "watchlist", href: "/watchlist", icon: Bookmark },
   { name: "Library", key: "jio+", href: "/jio+", icon: Library },
+  { name: "Strew", key: "strew", href: "/strew", icon: PlaySquare },
   { name: "Upload Strew", key: "upload", href: "/upload", icon: Upload },
 ];
 
