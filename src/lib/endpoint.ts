@@ -56,6 +56,7 @@ export const ENDPOINT = {
     uploadVideo: "/api/upload/video",
     uploadStrew: "/api/upload/strew",
     fetchAllStrews: "/api/upload/strews",
+    fetchUploadedVideoUrl: "/api/upload/video/stream",
 }
 
 export const media = (path: string | null | undefined, exception?: string): string => `https://image.tmdb.org/t/p/original` + (path || exception || "");
@@ -73,6 +74,7 @@ export const UPLOAD_API_BASE_URL = process.env.NEXT_PUBLIC_UPLOAD_API_BASE_URL |
 
 export const uploadApi = axios.create({
     baseURL: UPLOAD_API_BASE_URL,
+    withCredentials: true,
 });
 
 

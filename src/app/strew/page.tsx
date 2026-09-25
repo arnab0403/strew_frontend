@@ -5,17 +5,24 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Skeleton from "@/components/atom/Skeleton";
 import { Film } from "lucide-react";
+import Link from "next/link";
 
 interface Strew {
   _id: string;
+  name?: string;
   tittle: string;
   description: string;
   genre: string;
   tags: string[];
   thumbnail: string[];
-  s3_video_source: string;
+  publicId?: string;
+  s3_video_source?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+function getS3ObjectKey(source: string) {
+  return source.replace(/^s3:\/\/[^/]+\//, "");
 }
 
 function StrewPage() {
@@ -61,37 +68,55 @@ function StrewSectionData({ data }: { data: Strew[] | null }) {
     <div className="py-8 px-4 bg-[#0c0a09] text-[white]">
       <h2 className="text-2xl font-medium mb-6">Strews</h2>
       <div className="flex flex-wrap gap-4 w-full">
-        {data.map((strew) => (
-          <div
-            key={strew._id}
-            className="group relative w-[180px] aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-surface-inset"
-          >
-            {strew.thumbnail?.[0] ? (
-              <Image
-                alt={strew.tittle}
-                fill
-                unoptimized
-                className="object-cover"
-                src={strew.thumbnail[0]}
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-content-subtle">
-                <Film className="size-8" />
+        {data.map((strew) => {
+          const name = strew.name || strew.tittle;
+          const publicId =
+            strew.publicId ||
+            (strew.s3_video_source
+              ? getS3ObjectKey(strew.s3_video_source)
+              : undefined);
+
+          return (
+            <Link
+              key={strew._id}
+              href={{
+                pathname: "/strew/watch",
+                query: {
+                  publicId,
+                  title: name,
+                  poster: strew.thumbnail?.[0],
+                },
+              }}
+              aria-label={`Watch ${name}`}
+              className="group relative w-[180px] aspect-[2/3] cursor-pointer overflow-hidden rounded-lg bg-surface-inset"
+            >
+              {strew.thumbnail?.[0] ? (
+                <Image
+                  alt={name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  src={strew.thumbnail[0]}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-content-subtle">
+                  <Film className="size-8" />
+                </div>
+              )}
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+              <div className="absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 ease-out group-hover:translate-y-0">
+                <p className="truncate text-sm font-semibold text-white">
+                  {name}
+                </p>
+                <span className="mt-1.5 inline-block rounded-full bg-brand/20 px-2 py-0.5 text-[10px] font-medium text-brand">
+                  {strew.genre}
+                </span>
               </div>
-            )}
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-            <div className="absolute inset-x-0 bottom-0 translate-y-full p-3 transition-transform duration-300 ease-out group-hover:translate-y-0">
-              <p className="truncate text-sm font-semibold text-white">
-                {strew.tittle}
-              </p>
-              <span className="mt-1.5 inline-block rounded-full bg-brand/20 px-2 py-0.5 text-[10px] font-medium text-brand">
-                {strew.genre}
-              </span>
-            </div>
-          </div>
-        ))}
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

@@ -17,8 +17,15 @@ import { ENDPOINT, uploadApi } from "@/lib/endpoint";
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 interface UploadedVideo {
-  bucket: string;
-  key: string;
+  assetId: string;
+  publicId: string;
+  version: number;
+  format: string;
+  resourceType: string;
+  deliveryType: string;
+  url?: string;
+  thumbnailPublicId?: string;
+  thumbnailUrl?: string;
   contentType: string;
   size: number;
 }
@@ -30,12 +37,17 @@ interface UploadVideoResponse {
 }
 
 interface StrewPayload {
-  tittle: string;
+  name: string;
   description: string;
   genre: string;
   tags: string[];
   thumbnail: string[];
-  s3_video_source: string;
+  assetId: string;
+  publicId: string;
+  version: number;
+  format: string;
+  resourceType: string;
+  deliveryType: string;
 }
 
 const STATUS_TEXT: Record<UploadStatus, string> = {
@@ -65,8 +77,6 @@ function UploadPage() {
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
 
-  const [videoKey, setVideoKey] = useState<string>("");
-  const [bucket, setBucket] = useState<string>("video-streaming-arnab");
   const [isPublishing, setIsPublishing] = useState(false);
 
   const [trailer, setTrailer] = useState<File | null>(null);
@@ -156,14 +166,33 @@ function UploadPage() {
       if (response.data.status !== "success")
         throw new Error(response.data.message);
 
+      const uploadedFile = response.data.upload;
+
+      if (
+        !uploadedFile?.assetId ||
+        !uploadedFile.publicId ||
+        uploadedFile.version === undefined ||
+        !uploadedFile.format ||
+        !uploadedFile.resourceType ||
+        !uploadedFile.deliveryType
+      ) {
+        throw new Error("Upload response did not include Cloudinary asset metadata");
+      }
+
       setProgress(100);
       setUploadStatus("success");
-      setUploadedVideo(response.data.upload);
-      if (response.data.upload?.key) {
-        setVideoKey(response.data.upload.key);
-      }
-      if (response.data.upload?.bucket) {
-        setBucket(response.data.upload.bucket);
+      setUploadedVideo(uploadedFile);
+      if (uploadedFile.thumbnailUrl) {
+        setThumbnails((previousThumbnails) => {
+          const nextThumbnails = [...previousThumbnails];
+          const previousThumbnail = nextThumbnails[0];
+          if (previousThumbnail?.startsWith("blob:")) {
+            URL.revokeObjectURL(previousThumbnail);
+          }
+          nextThumbnails[0] = uploadedFile.thumbnailUrl!;
+          return nextThumbnails;
+        });
+        setActiveThumbnail(0);
       }
       toast.success(response.data.message || "Video uploaded successfully");
     } catch (error: any) {
@@ -185,8 +214,6 @@ function UploadPage() {
     setProgress(0);
     setUploadStatus("idle");
     setUploadedVideo(null);
-    setVideoKey("");
-    setBucket("video-streaming-arnab");
   };
 
   const selectTrailer = (file?: File) => {
@@ -267,8 +294,6 @@ function UploadPage() {
     cancelUpload();
     setThumbnails(Array(THUMBNAIL_SLOTS).fill(null));
     setActiveThumbnail(0);
-    setVideoKey("");
-    setBucket("video-streaming-arnab");
   };
 
   const handlePublish = async () => {
@@ -276,8 +301,8 @@ function UploadPage() {
       return toast.warning("Please wait for video upload to finish");
     }
 
-    if (!videoKey || uploadStatus !== "success") {
-      return toast.error("Video key is missing. Please upload a video first.");
+    if (!uploadedVideo || uploadStatus !== "success") {
+      return toast.error("Video metadata is missing. Please upload a video first.");
     }
 
     if (!title.trim()) {
@@ -303,17 +328,18 @@ function UploadPage() {
       return toast.error("At least one thumbnail is required.");
     }
 
-    const effectiveBucket =
-      bucket || uploadedVideo?.bucket || "video-streaming-arnab";
-    const s3VideoSource = `s3://${effectiveBucket}/${videoKey}`;
-
     const payload: StrewPayload = {
-      tittle: title.trim(),
+      name: title.trim(),
       description: description.trim(),
       genre: genre.trim(),
       tags: tags,
       thumbnail: validThumbnails,
-      s3_video_source: s3VideoSource,
+      assetId: uploadedVideo.assetId,
+      publicId: uploadedVideo.publicId,
+      version: uploadedVideo.version,
+      format: uploadedVideo.format,
+      resourceType: uploadedVideo.resourceType,
+      deliveryType: uploadedVideo.deliveryType,
     };
 
     try {
